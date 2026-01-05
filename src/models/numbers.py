@@ -1,14 +1,14 @@
-from enum import Enum, auto
+from enum import IntEnum
 
 
-class Number(Enum):
-    ZERO = auto()
-    ONE = auto()
-    TWO = auto()
-    THREE = auto()
-    FOUR = auto()
-    FIVE = auto()
-    SIX = auto()
-    SEVEN = auto()
-    EIGHT = auto()
-    NINE = auto()
+class Number(IntEnum):
+    ZERO = 0
+    ONE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
+    SIX = 6
+    SEVEN = 7
+    EIGHT = 8
+    NINE = 9
