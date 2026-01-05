@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from enum import Enum, auto
 
 from models.colors import Color
 from models.numbers import Number 
@@ -22,6 +21,6 @@ class ActionCard(Card):
     action: Action
 
 
-class WildCard(Card, Enum):
-    WILD = auto()
-    WILD_DRAW_FOUR = auto()
+@dataclass
+class WildCard(Card):
+    action: Action
