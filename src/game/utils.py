@@ -2,7 +2,7 @@ from typing import List
 from models.cards import *
 from models.colors import Color
 from models.numbers import Number
-from models.actions import Action
+from models.actions import Action, WildAction
 
 
 def create_deck() -> List[Card]:
@@ -17,13 +17,15 @@ def create_deck() -> List[Card]:
                     deck.append(NumberCard(color, number))
         
         for action in Action:
-            if action.name not in {"WILD", "WILD_DRAW_FOUR"}:
-                for _ in range(2):
-                    deck.append(ActionCard(color, action))
+            for _ in range(2):
+                deck.append(ActionCard(color, action))
         
-    for action in Action:
-        if action.name in {"WILD", "WILD_DRAW_FOUR"}:
-            for _ in range(4):
-                    deck.append(WildCard(action))
+    for wild_action in WildAction:
+        for _ in range(4):
+                deck.append(WildCard(wild_action))
     
     return deck
+
+print(len(create_deck()))
+for card in create_deck():
+    print(card)
