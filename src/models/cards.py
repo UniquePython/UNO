@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from models.colors import Color
-from models.numbers import Number 
-from models.actions import Action, WildAction
+from src.models.colors import Color
+from src.models.numbers import Number 
+from src.models.actions import Action, WildAction
 
 
 class Card:

@@ -2,10 +2,12 @@ import random
 from dataclasses import dataclass
 from typing import List, Literal
 
-from models.cards import Card, NumberCard, ActionCard, WildCard
-from models.colors import Color
-from models.actions import Action, WildAction
-from models.player import Player
+from src.models.numbers import Number
+from src.models.cards import Card, NumberCard, ActionCard, WildCard
+from src.models.colors import Color
+from src.models.actions import Action, WildAction
+from src.models.player import Player
+from src.models.ai import SmartAI, SimpleAI, RandomAI
 
 
 # -------------------- Helpers --------------------
@@ -13,6 +15,43 @@ from models.player import Player
 def next_player(index: int, direction: int, n: int) -> int:
     return (index + direction) % n
 
+
+def create_deck() -> List[Card]:
+    deck: List[Card] = []
+    
+    for color in Color:
+        for number in Number:
+            if number == 0:
+                deck.append(NumberCard(color, number))
+            else:
+                for _ in range(2):
+                    deck.append(NumberCard(color, number))
+        
+        for action in Action:
+            for _ in range(2):
+                deck.append(ActionCard(color, action))
+        
+    for wild_action in WildAction:
+        for _ in range(4):
+                deck.append(WildCard(wild_action))
+    
+    return deck
+
+
+def distribute_cards(deck: List[Card], players: List[Player]) -> List[Card]:
+
+    if not deck or not all(isinstance(card, Card) for card in deck):
+        raise ValueError("Deck does not contain valid cards.")
+
+    if len(deck) < len(players) * 7:
+        raise ValueError("Not enough cards to distribute.")
+
+    random.shuffle(deck)
+
+    for player in players:
+        player.hand = [deck.pop() for _ in range(7)]
+
+    return deck
 
 # -------------------- Game State --------------------
 
@@ -139,6 +178,7 @@ def take_turn(player: Player, state: GameState, players: List[Player]):
     if playable:
         card = player.choose_card(playable)
         play_card(card, state, players)
+        print(f"{player.name} plays {card}")
     else:
         drawn = draw_card(player, state)
         if is_playable(drawn, top, state.current_color, player.hand):
@@ -187,11 +227,45 @@ def run_game(deck: List[Card], players: List[Player]):
 
     while True:
         player = players[state.current_player]
+        if getattr(player, 'human', True):
+            hand_str = ", ".join(str(card) for card in player.hand)
+            print(f"Your cards are: {hand_str}")
         take_turn(player, state, players)
 
-        if len(player.hand) == 1:
-            print(f"{player} says UNO!")
+        if len(player.hand) == 1 and not getattr(player, 'said_uno', False):
+            print(f"{player.name} says UNO!")
+            player.said_uno = True
 
         if len(player.hand) == 0:
-            print(f"{player} wins!")
+            print(f"{player.name} wins!")
             break
+
+
+def main():
+    n = int(input("Enter total number of players: "))
+    
+    if not 2 <= n <= 10:
+        raise ValueError("Number of players must be between 2 and 10 inclusive.")
+
+    # Create player list
+    players = []
+
+    human_name = input("Enter your name: ")
+    players.append(Player(hand=[], name=human_name, human=True))  # human player
+
+    names = ["Rudy", "Sharlene", "Rosalie", "Thomas", "Jimmie", "Gail", "Terri", "Christina", "Isabel", "Garfield", "Jonathon", "Jordan", "Horace"]
+    
+    # Fill remaining with AI
+    for _ in range(1, n):
+        ai_type = random.choice([RandomAI, SimpleAI, SmartAI])
+        players.append(ai_type(hand=[], name=f"{random.choice(names)}"))
+
+    # Prepare deck and deal cards
+    deck = create_deck()
+    deck = distribute_cards(deck, players)
+
+    run_game(deck, players)
+
+
+if __name__ == "__main__":
+    main()
